@@ -4,13 +4,11 @@ from aiogram import Router, F
 from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from django.contrib.admin import register
 
-from bot.keyboards.default import language, city, menu, phone_number
-from asgiref.sync import sync_to_async
+from bot.keyboards.default.default import language, city, menu, phone_number
 from django.contrib.auth import get_user
 
-from bot.keyboards.menu import buyurtma, sozlamalar, aloqa, buyurtma_location, buyurtma_yetkazish
+from bot.keyboards.default.menu import buyurtma, sozlamalar, aloqa, buyurtma_location, buyurtma_yetkazish
 from bot.states.order import Order
 from bot.states.register import RegisterState
 
@@ -62,7 +60,7 @@ async def menu_handler(message: Message, state: FSMContext):
         await state.set_state(RegisterState.order)   # buyurma uchun qilinadi
 
     elif message.text == "📖 Buyurtmalar tarixi":
-        if get_user(chat_id=message.chat.id):
+        if get_user(phone_number=message.phone_number):
             text = "Sizning buyurtmalaringiz yo'q\nBosh menyu"
             await message.answer(text=text, reply_markup=menu)
             await state.set_state(RegisterState.menu)
@@ -103,14 +101,22 @@ async def order_handler(message: Message, state: FSMContext):
         text = "Buyurtmangizni qayerga yetkazib berish kerak 🚙?\nAgar lokatsiyangizni📍 yuborsangiz, sizga eng yaqin filialni va yetkazib berish xarajatlarini aniqlaymiz 💵"
         await message.answer(text=text, reply_markup=buyurtma_yetkazish)
         await state.set_state(Order.Order_yetkazish)
-    else:
-        await message.answer(text="Iltmos Menudan tanlang")
-        await state.set_state(RegisterState.order)
+
+"""
+bu ortga qaytish handleri
+"""
+@router.message(F.text == "⬅️ Ortga", RegisterState.order, RegisterState.settings)
+async def back_handler(message: Message, state: FSMContext):
+    await state.set_state(RegisterState.menu)
+    await message.answer("Orqaga qaytdik", reply_markup=menu)
 
 
-@router.message(Order.Order_register)
-async def order_register(message: Message, state: FSMContext):
-    await state.update_data(phone_number=message.text)
+
+# @router.message(Order.Order_register)
+# async def order_register(message: Message, state: FSMContext):
+#     await state.update_data(phone_number=message.text)
+#     if get_user()
+
 #
 # @router.message(F.photo)
 # async def handle_photo(message: Message):
