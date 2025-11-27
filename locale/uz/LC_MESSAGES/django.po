@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 #: .\bot\handlers\start.py:39
 msgid "Welcome to main menu 😊"
-msgstr ""
+msgstr "Salom menuga xush kelibsiz 😊"
 
 #: .\bot\handlers\start.py:59
 msgid "✅ Language changed successfully!"
-msgstr ""
+msgstr "Tilingiz muvaffaqiyatli o'zgardi ✅"
 
 #: .\bot\handlers\start.py:64
 msgid ""

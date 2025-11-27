@@ -29,7 +29,10 @@ class BotConfig(AppConfig):
             BotConfig.dp.callback_query.middleware(TranslationMiddleware())
 
             # Register handlers
-            from bot.handlers import start
+            from bot.handlers import start, menu, backs, order
             BotConfig.dp.include_router(start.router)
+            BotConfig.dp.include_router(menu.router)
+            BotConfig.dp.include_router(backs.router)
+            BotConfig.dp.include_router(order.router)
 
             logger.info("Bot initialized successfully with i18n support")

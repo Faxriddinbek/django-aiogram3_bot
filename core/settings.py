@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -139,3 +140,4 @@ WEBHOOK_PATH = os.getenv('WEBHOOK_PATH', '/bot/webhook/')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET', 'secret')
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+TELEGRAM_STORAGE_CHAT_ID = os.getenv('TELEGRAM_STORAGE_CHAT_ID')

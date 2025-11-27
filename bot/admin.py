@@ -3,7 +3,7 @@ import os
 
 from aiogram.types import BufferedInputFile
 from django.contrib import admin
-
+from asgiref.sync import async_to_sync
 from bot.apps import BotConfig
 from bot.models.base import City
 from bot.models.product import Product, Category
@@ -79,48 +79,29 @@ class ProductAdmin(admin.ModelAdmin):
             super().save_model(request, obj, form, change)
 
     def _upload_to_telegram(self, file_field, caption=None):
-        """
-        Upload file to Telegram and return file_id and file_unique_id
-        Uses a chat_id from settings to temporarily send the file
-        """
         storage_chat_id = getattr(config, 'TELEGRAM_STORAGE_CHAT_ID', None)
 
         if not storage_chat_id:
-            raise ValueError(
-                "TELEGRAM_STORAGE_CHAT_ID not set in settings. "
-                "Please add your Telegram user ID or channel ID to settings.py"
-            )
+            raise ValueError("TELEGRAM_STORAGE_CHAT_ID not set in settings")
 
-        # Create new event loop for sync context
-        loop = asyncio.new_event_loop() # shu yerdagi hamma ko'dlar asyncio qilishga ishlaydi
-        asyncio.set_event_loop(loop)
+        file_field.seek(0)
+        file_content = file_field.read()
+        file_name = os.path.basename(file_field.name)
 
-        try:
-            # Read file content
-            file_field.seek(0)
-            file_content = file_field.read()
-            file_name = os.path.basename(file_field.name)#  rasim jonatish
+        input_file = BufferedInputFile(
+            file=file_content,
+            filename=file_name
+        )
 
-            # Create BufferedInputFile
-            input_file = BufferedInputFile(
-                file=file_content,
-                filename=file_name
-            )
+        # run async safely inside Django sync context
+        result = async_to_sync(self._send_to_telegram)(
+            BotConfig.bot,
+            storage_chat_id,
+            input_file,
+            caption
+        )
 
-            # Send to Telegram
-            result = loop.run_until_complete(
-                self._send_to_telegram(
-                    BotConfig.bot,
-                    storage_chat_id,
-                    input_file,
-                    caption
-                )
-            )
-
-            return result['file_id'], result['file_unique_id']
-
-        finally:
-            loop.close()
+        return result['file_id'], result['file_unique_id']
 
     @staticmethod
     async def _send_to_telegram(bot, chat_id, input_file, caption):

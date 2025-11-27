@@ -1,8 +1,7 @@
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import StatesGroup, State
 
-class Order(StatesGroup):
-    Orders = State()
-    Order_location = State()
-    Order_yetkazish = State()
-    Order_story = State()
-    Order_register = State()
+
+class OrderState(StatesGroup):
+    order_type = State()
+    location = State()
+    category = State()
