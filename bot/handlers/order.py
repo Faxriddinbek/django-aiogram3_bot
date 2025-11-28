@@ -4,8 +4,14 @@ from aiogram.types import Message
 from django.utils.translation import gettext as _
 
 from bot.handlers.location import get_location_name
-from bot.keyboards.default.order import get_takeaway_keyboards
+from bot.keyboards.default.order import get_takeaway_keyboards, get_location_confirmation_keyboards, \
+    get_menu_categories_keyboards, get_category_keyboard
+from bot.keyboards.default.product import get_product_sets_keyboard, get_product_snacks_keyboard, \
+    get_product_burgerlar_keyboard, get_product_tovuq_keyboard, get_product_lesterlar_keyboard, \
+    get_product_hot_dog_keyboard
+from bot.models.product import Product
 from bot.states.order import OrderState
+from bot.utils.product import get_sets_products
 
 router = Router()
 
@@ -23,22 +29,73 @@ async def take_away_handler(message: Message, state: FSMContext):
     F.text.in_(['📍 Determine nearest branch', '📍 Manzilni ulashish']),
     OrderState.location
 )
-async def location_button_handler(message: Message, state: FSMContext):
+async def location_handler(message: Message, state: FSMContext):
     text = _("Please send your location using the button below")
     await message.answer(text=text)
 
 
 @router.message(F.location, OrderState.location)
-async def location_received_handler(message: Message, state: FSMContext):
+async def location_button_handler(message: Message, state: FSMContext):
     await state.update_data(
         longitude=message.location.longitude,
         latitude=message.location.latitude
     )
-    await state.set_state(OrderState.category)
-
     data = await state.get_data()
     lat = data.get("latitude")
     lon = data.get("longitude")
     address = await get_location_name(latitude=lat, longitude=lon)
     text = _(f"Your address:{address}\n📍Confirm your location or resend it")
-    await message.answer(text=text)
+    await message.answer(text=text, reply_markup=await get_location_confirmation_keyboards())
+    await state.set_state(OrderState.location_select)
+
+
+@router.message(F.text.in_(['✅ Approve', '✅ Tasdiqlash']), OrderState.location_select)
+async def location_received_handler(message: Message, state: FSMContext):
+    text = _("Where to start?")
+    await message.answer(text=text, reply_markup=await get_category_keyboard())
+    await state.set_state(OrderState.category)
+
+
+@router.message(F.text, OrderState.category)
+async def category_handler(message: Message, state: FSMContext):
+    data = message.text
+    text = _("Where to start?")
+    if data == "🍱 Setlar":
+        await message.answer(text=text, reply_markup=await get_product_sets_keyboard())
+    elif data == "🍟 Sneklar":
+        await message.answer(text=text, reply_markup=await get_product_snacks_keyboard())
+    elif data == "🍔 Burgerlar":
+        await message.answer(text=text, reply_markup=await get_product_burgerlar_keyboard())
+    elif data == "🍗 Tovuq":
+        await message.answer(text=text, reply_markup=await get_product_tovuq_keyboard())
+    elif data == "🌯 Lesterlar":
+        await message.answer(text=text, reply_markup=await get_product_lesterlar_keyboard())
+    elif data == "🌭 Longerlar/Hot-dog":
+        await message.answer(text=text, reply_markup=await get_product_hot_dog_keyboard())
+    await state.set_state(OrderState.product_category)
+
+
+# @router.message(F.text, OrderState.product_category)
+# async def product_category_handler(message: Message, state: FSMContext):
+#     data = get_sets_products()
+#     text = data.get()
+#     await message.answer(text=text, reply_markup=await get_product_snacks_keyboard())
+#     await state.set_state()
+
+
+# @router.message(F.text, OrderState.product_category)
+# async def product_category_handler(message: Message, state: FSMContext):
+#     data = Product.objects.get("Combo set")
+#     text =""
+#     await message.answer(text=text, reply_markup=await get_product_snacks_keyboard())
+#     await state.set_state()
+
+# @router.message(F.location, OrderState.location_select)
+# async def location_select_handler(message: Message, state: FSMContext):
+#     await state.update_data(
+#         longitude=message.location.longitude,
+#         latitude=message.location.latitude
+#     )
+#     text = _("Where to start?")
+#     await message.answer(text=text, reply_markup= await get_menu_categories_keyboards())
+#     await state.set_state(OrderState.category)
