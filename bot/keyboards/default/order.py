@@ -105,3 +105,21 @@ async def get_category_keyboard():
 
     keyboards.adjust(2)
     return keyboards.as_markup(resize_keyboard=True)
+
+async def get_order_by_keyboards() -> ReplyKeyboardMarkup:
+    """
+    Keyboard for choosing order type (take away or delivery).
+    """
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[
+            [
+                KeyboardButton(text="📥" + _(" Basket")),
+            ],
+            [
+                KeyboardButton(text="⬅️ " + _("Back")),
+            ]
+        ]
+    )
+
+    return keyboard

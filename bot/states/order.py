@@ -7,3 +7,4 @@ class OrderState(StatesGroup):
     category = State()
     product_category = State()
     location_select = State()
+    order_by = State()

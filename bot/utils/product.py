@@ -4,6 +4,11 @@ from bot.models.product import Product
 
 
 @sync_to_async
+def get_product_by_title(title: str):
+    return Product.objects.filter(title__iexact=title).first()
+
+
+@sync_to_async
 def get_sets_products(status=True):
     """Get all Sets category products from database"""
     return list(Product.objects.filter(
