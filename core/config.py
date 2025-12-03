@@ -13,9 +13,15 @@ DEBUG = os.getenv('DEBUG')
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_STORAGE_CHAT_ID = os.getenv('TELEGRAM_STORAGE_CHAT_ID')
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS")
+ALLOWED_HOSTS = [host.strip() for host in os.getenv('ALLOWED_HOSTS').split(',') if host]
 BASE_WEBHOOK_URL = os.getenv('BASE_WEBHOOK_URL')
 WEBHOOK_SECRET = os.getenv('WEBHOOK_SECRET')
 WEB_SERVER_PORT = int(os.getenv('WEB_SERVER_PORT'))
 WEB_SERVER_HOST = os.getenv('WEB_SERVER_HOST')
-WEBHOOK_PATH = os.getenv('WEBHOOK_PATH')# bu telegram bizni api ni qayeriga so'rov jo'natishini aniqlaydi
+WEBHOOK_PATH='/bot/webhook/'# bu telegram bizni api ni qayeriga so'rov jo'natishini aniqlaydi
+
+DB_NAME = os.getenv('DB_NAME')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_USER = os.getenv('DB_USER')
+DB_PASS = os.getenv('DB_PASS')
